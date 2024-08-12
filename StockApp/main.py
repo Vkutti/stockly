@@ -3,6 +3,8 @@ from matplotlib import pyplot as pp
 import datetime as dt
 from calendar import monthrange as mr
 
+
+
 ones = []
 zeros = []
 
@@ -118,7 +120,7 @@ returnPercent(a)
 getAvgReturn(stk)
 getAverageVol(vol)
 
-stk["MA 18 Days"] = stk['Close'].rolling(18).mean()
+stk["MA 18 Days"] = stk['Close'].rolling(15).mean()
 stk["Pct Change"] = stk['Close'].pct_change()
 
 pp.subplot(221)
@@ -128,11 +130,25 @@ stk["MA 18 Days"].plot(use_index=True)
 pp.legend()
 
 pp.subplot(222)
-stk["Pct Change"].plot(use_index=True)
+stk["Pct Change"].hist(bins=25)
 pp.legend()
 
 pp.suptitle("All Values")
 
+h = 0
+print(list(stk["Pct Change"]))
+print(len(list(stk["Pct Change"])))
+
+for i in range(1, len(list(stk["Pct Change"]))):
+    h += ((stk["Pct Change"].iloc[i]) * 100)
+
+print(h)
+
+avgPCTChange = (h / len(list(stk["Pct Change"])))
+
+print(avgPCTChange)
 
 pp.show()
+
+
 
