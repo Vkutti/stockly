@@ -3,8 +3,6 @@ from matplotlib import pyplot as pp
 import datetime as dt
 from calendar import monthrange as mr
 
-
-
 ones = []
 zeros = []
 
@@ -14,6 +12,7 @@ downVal = 0.0
 upVal = 0.0
 
 
+# Function to get if a stock exists on Yahoo Finance
 def is_real_stock(new):
     st = yf.Ticker(new)
     hist = st.history()
@@ -26,12 +25,12 @@ def is_real_stock(new):
 
 if is_real_stock(stock):
     stock = stock.upper()
-
     print(f"{stock} is a real stock.")
 else:
     print(f"{stock} is not a real stock.")
 
 
+# Returns the average percent of rises and falls
 def returnPercent(new):
     global ones, zeros
 
@@ -51,13 +50,47 @@ def returnPercent(new):
     print(f'The chance of the price going down tomorrow is {prdown}%')
 
 
+# Returns the average of all the volumes
 def getAverageVol(n):
-    h = 0
+    x = 0
 
     for i in range(len(n) - 1):
-        h += int(n[i])
+        x += int(n[i])
 
-    print(float(h / (len(n))))
+    print(float(x / (len(n))))
+
+
+# Returns the average percent change daily
+def averagePercentChange(a):
+    for i in range(1, len(list(stk["Pct Change"]))):
+        a += (stk["Pct Change"].iloc[i])
+        print(a)
+
+    print(((len(list(stk["Pct Change"]))) - 1))
+    avgPercentChange = f'{a / ((len(list(stk["Pct Change"]))) - 1)}% Change Daily'
+
+    print(avgPercentChange)
+
+
+# Returns the average percent return daily
+def getAvgReturn(n):
+    x = []
+    g = 0
+
+    closedata = list(n["Close"])
+    opendata = list(n["Open"])
+
+    # print(closeData)
+    # print(openData)
+
+    for i in range(len(n)):
+        x.append(closedata[i] - opendata[i])
+        # print(h)
+
+    for i in range(len(x)):
+        g += x[i]
+
+    print(g / (len(x) - 1))
 
 
 option = str(input("What do you want today? - "))
@@ -65,13 +98,13 @@ option = str(input("What do you want today? - "))
 date = ''
 ct = dt.datetime.now()
 
-print(int(list(mr(ct.year, ct.month))[1]) - 7)
+print(int(list(mr(ct.year, ct.month))[1]) - 14)
 
 if option == 'Tomorrows Price':
-    date = f'{ct.year}-{ct.month}-{(ct.day - 7)}'
+    date = f'{ct.year}-{ct.month}-{(ct.day - 14)}'
 
-    if ct.day < 5:
-        date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - 6}'
+    if ct.day < 14:
+        date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - 13}'
 
 if option == 'Future Price':
     date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
@@ -85,48 +118,34 @@ stk = stk.loc[date:].copy()
 
 del stk["Dividends"]
 del stk["Stock Splits"]
-del stk["High"]
-del stk["Low"]
+# stk["High"]
+# stk["Low"]
 
 stk["Tomorrow"] = stk["Close"].shift(-1)
 stk["Target"] = (stk["Tomorrow"] > stk["Close"]).astype(int)
 
-
-def getAvgReturn(n):
-    h = []
-    g = 0
-    closeData = list(n["Close"])
-    openData = list(n["Open"])
-
-    # print(closeData)
-    # print(openData)
-
-    for i in range(len(n)):
-        h.append(closeData[i] - openData[i])
-        # print(h)
-
-    for x in range(len(h)):
-        g += h[x]
-
-    print(g / len(h))
-
-
-
-
-a = list(stk["Target"])
+targ = list(stk["Target"])
 vol = list(stk["Volume"])
 
-returnPercent(a)
+returnPercent(targ)
 getAvgReturn(stk)
 getAverageVol(vol)
 
-stk["MA 18 Days"] = stk['Close'].rolling(15).mean()
-stk["Pct Change"] = stk['Close'].pct_change()
+
+stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
+
+stk["MA 7 Days"] = stk['Close'].rolling(7).mean()
+
+stk["Pct Change"] = (stk['Close'].pct_change()) * 100
 
 pp.subplot(221)
 stk["Open"].plot(use_index=True)
 stk["Close"].plot(use_index=True)
-stk["MA 18 Days"].plot(use_index=True)
+stk["Low"].plot(use_index=True)
+stk["High"].plot(use_index=True)
+stk["MA 15 Days"].plot(use_index=True)
+stk["MA 7 Days"].plot(use_index=True)
+
 pp.legend()
 
 pp.subplot(222)
@@ -136,19 +155,13 @@ pp.legend()
 pp.suptitle("All Values")
 
 h = 0
-print(list(stk["Pct Change"]))
+
 print(len(list(stk["Pct Change"])))
 
-for i in range(1, len(list(stk["Pct Change"]))):
-    h += ((stk["Pct Change"].iloc[i]) * 100)
-
-print(h)
-
-avgPCTChange = (h / len(list(stk["Pct Change"])))
-
-print(avgPCTChange)
+averagePercentChange(h)
 
 pp.show()
 
+# Final Calculations
 
 
