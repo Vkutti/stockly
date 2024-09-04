@@ -70,9 +70,10 @@ def averagePercentChange(a):
     avgPercentChange = f'{a / ((len(list(stk["Pct Change"]))) - 1)}% Change Daily'
 
     print(avgPercentChange)
+    return a / ((len(list(stk["Pct Change"]))) - 1)
 
 
-# Returns the average percent return daily
+# Returns the average return daily
 def getAvgReturn(n):
     x = []
     g = 0
@@ -83,7 +84,7 @@ def getAvgReturn(n):
     # print(closeData)
     # print(openData)
 
-    for i in range(len(n)):
+    for i in range(len(n-1)):
         x.append(closedata[i] - opendata[i])
         # print(h)
 
@@ -91,6 +92,7 @@ def getAvgReturn(n):
         g += x[i]
 
     print(g / (len(x) - 1))
+    return g / (len(x) - 1)
 
 
 option = str(input("What do you want today? - "))
@@ -141,8 +143,7 @@ stk["Pct Change"] = (stk['Close'].pct_change()) * 100
 pp.subplot(221)
 stk["Open"].plot(use_index=True)
 stk["Close"].plot(use_index=True)
-stk["Low"].plot(use_index=True)
-stk["High"].plot(use_index=True)
+
 stk["MA 15 Days"].plot(use_index=True)
 stk["MA 7 Days"].plot(use_index=True)
 
@@ -160,8 +161,16 @@ print(len(list(stk["Pct Change"])))
 
 averagePercentChange(h)
 
-pp.show()
+apc = float(averagePercentChange(h))
 
 # Final Calculations
+
+changeValue = float(((stk["Close"].iloc[-1]) * apc) / 100)
+print(changeValue)
+
+if changeValue >= getAvgReturn(stk):
+    print("Yes")
+
+pp.show()
 
 
