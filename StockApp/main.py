@@ -2,32 +2,12 @@ import yfinance as yf
 from matplotlib import pyplot as pp
 import datetime as dt
 from calendar import monthrange as mr
+from flask import Flask, render_template, request
 
 ones = []
 zeros = []
 
-stock = str(input("What stock are you looking for? - "))
-
-downVal = 0.0
-upVal = 0.0
-
-
-# Function to get if a stock exists on Yahoo Finance
-def is_real_stock(new):
-    st = yf.Ticker(new)
-    hist = st.history()
-
-    if hist.empty:
-        return False
-    else:
-        return True
-
-
-if is_real_stock(stock):
-    stock = stock.upper()
-    print(f"{stock} is a real stock.")
-else:
-    print(f"{stock} is not a real stock.")
+stock = str()
 
 
 # Returns the average percent of rises and falls
@@ -60,19 +40,6 @@ def getAverageVol(n):
     print(float(x / (len(n))))
 
 
-# Returns the average percent change daily
-def averagePercentChange(a):
-    for i in range(1, len(list(stk["Pct Change"]))):
-        a += (stk["Pct Change"].iloc[i])
-        print(a)
-
-    print(((len(list(stk["Pct Change"]))) - 1))
-    avgPercentChange = f'{a / ((len(list(stk["Pct Change"]))) - 1)}% Change Daily'
-
-    print(avgPercentChange)
-    return a / ((len(list(stk["Pct Change"]))) - 1)
-
-
 # Returns the average return daily
 def getAvgReturn(n):
     x = []
@@ -84,93 +51,177 @@ def getAvgReturn(n):
     # print(closeData)
     # print(openData)
 
-    for i in range(len(n-1)):
+    for i in range(len(n - 1)):
         x.append(closedata[i] - opendata[i])
         # print(h)
 
     for i in range(len(x)):
         g += x[i]
 
-    print(g / (len(x) - 1))
     return g / (len(x) - 1)
 
 
-option = str(input("What do you want today? - "))
-
-date = ''
-ct = dt.datetime.now()
-
-print(int(list(mr(ct.year, ct.month))[1]) - 14)
-
-if option == 'Tomorrows Price':
-    date = f'{ct.year}-{ct.month}-{(ct.day - 14)}'
-
-    if ct.day < 14:
-        date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - 13}'
-
-if option == 'Future Price':
-    date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
-
-if option == 'All Time':
-    date = '1980-1-1'
-
-stk = yf.Ticker(stock)
-stk = stk.history(period="max")
-stk = stk.loc[date:].copy()
-
-del stk["Dividends"]
-del stk["Stock Splits"]
-# stk["High"]
-# stk["Low"]
-
-stk["Tomorrow"] = stk["Close"].shift(-1)
-stk["Target"] = (stk["Tomorrow"] > stk["Close"]).astype(int)
-
-targ = list(stk["Target"])
-vol = list(stk["Volume"])
-
-returnPercent(targ)
-getAvgReturn(stk)
-getAverageVol(vol)
+app = Flask(__name__)
 
 
-stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
+@app.route("/")
+def start():
+    return render_template('homepage.html')
 
-stk["MA 7 Days"] = stk['Close'].rolling(7).mean()
 
-stk["Pct Change"] = (stk['Close'].pct_change()) * 100
+# Function to get if a stock exists on Yahoo Finance
+def is_real_stock(new):
+    st = yf.Ticker(new)
+    hist = st.history()
 
-pp.subplot(221)
-stk["Open"].plot(use_index=True)
-stk["Close"].plot(use_index=True)
+    if hist.empty:
+        return False
+    else:
+        return True
 
-stk["MA 15 Days"].plot(use_index=True)
-stk["MA 7 Days"].plot(use_index=True)
 
-pp.legend()
+@app.route("/stockinfo")
+def get_stock_name():
+    global stock
+    stock_name = request.args.get('stockname')
+    stock = str(stock_name)
 
-pp.subplot(222)
-stk["Pct Change"].hist(bins=25)
-pp.legend()
+    is_real_stock(stock)
 
-pp.suptitle("All Values")
+    if is_real_stock(stock):
+        stock = stock.upper()
+        returnmsg = str(f"{stock} is a real stock.")
+    else:
+        returnmsg = str(f"{stock} is not a real stock.")
 
-h = 0
+    return render_template("homepage.html", stockPick=stock, returnTF=returnmsg)
 
-print(len(list(stk["Pct Change"])))
 
-averagePercentChange(h)
+@app.route("/dateoption")
+def dateoption():
 
-apc = float(averagePercentChange(h))
 
-# Final Calculations
+    date = str(request.args.get('dateopt'))
 
-changeValue = float(((stk["Close"].iloc[-1]) * apc) / 100)
-print(changeValue)
+    option = date.upper()
 
-if changeValue >= getAvgReturn(stk):
-    print("Yes")
+    date = ''
+    ct = dt.datetime.now()
+
+    # print(int(list(mr(ct.year, ct.month))[1]) - 10)
+
+    if option == 'TOMORROWS PRICE':
+        date = f'{ct.year}-{ct.month}-{(ct.day - 10)}'
+
+        if ct.day < 10:
+            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (10 - ct.day)}'
+
+    if option == 'FUTURE PRICE':
+        date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
+
+    if option == 'ALL TIME':
+        date = '1980-1-1'
+
+    global stock
+
+    stk = yf.Ticker(stock)
+    stk = stk.history(period="max")
+    stk = stk.loc[date:].copy()
+
+    del stk["Dividends"]
+    del stk["Stock Splits"]
+    # stk["High"]
+    # stk["Low"]
+
+    stk["Tomorrow"] = stk["Close"].shift(-1)
+    stk["Target"] = (stk["Tomorrow"] > stk["Close"]).astype(int)
+
+    targ = list(stk["Target"])
+    vol = list(stk["Volume"])
+
+    returnPercent(targ)
+    print(getAvgReturn(stk))
+    getAverageVol(vol)
+
+    stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
+
+    stk["MA 7 Days"] = stk['Close'].rolling(7).mean()
+
+    stk["Pct Change"] = (stk['Close'].pct_change()) * 100
+
+    """
+
+    pp.subplot(221)
+    stk["Open"].plot(use_index=True)
+    stk["Close"].plot(use_index=True)
+
+    stk["MA 15 Days"].plot(use_index=True)
+    stk["MA 7 Days"].plot(use_index=True)
+
+    pp.legend()
+
+    pp.subplot(222)
+    stk["Pct Change"].hist(bins=25)
+
+    pp.suptitle("All Values")
+
+    """
+
+    h = 0
+
+    # Final Calculations
+    averagePercentChange(h, stk)
+
+    apc = float(averagePercentChange(h, stk))
+    print(f'This is the average percent change: {apc}')
+
+    prup = float(len(ones) / len(targ))
+    prdown = float(len(zeros) / len(targ))
+
+    changeValue = float(((stk["Close"].iloc[-1]) * apc) / 100)
+
+    # Average Return - Percent Error <= Change Value <= Average Return + Percent Error
+
+    changeval = f'This is the change value: {changeValue}'
+    lowchangeval = f'This is the lowest change value: {float(changeValue - ((getAvgReturn(stk) * prdown) / 100))}'
+    highchangeval = f'This is the highest change value: {float(changeValue + ((getAvgReturn(stk) * prup) / 100))}'
+
+    if option == 'Tomorrows Price':
+        if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
+            if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
+                print(f'The stock {stock} is expected to rise tomorrow by about: {changeValue}')
+            else:
+                print(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
+        else:
+            print(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
+
+    if option == 'Future Price':
+        if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
+            if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
+                print(f'The stock {stock} is expected to rise in the next few days by about: {changeValue}')
+            else:
+                print(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
+        else:
+            print(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
+
+    return render_template("homepage.html", date = date, cv = changeval, lcv = lowchangeval, hcv = highchangeval)
+
+
+# Returns the average percent change daily
+def averagePercentChange(a, sk):
+    for i in range(1, len(list(sk["Pct Change"]))):
+        a += (sk["Pct Change"].iloc[i])
+
+    print(((len(list(sk["Pct Change"]))) - 1))
+    avgPercentChange = f'{a / ((len(list(sk["Pct Change"]))) - 1)}% Change Daily'
+
+    print(avgPercentChange)
+    return a / ((len(list(sk["Pct Change"]))) - 1)
+
+
+if __name__ == '__main__':
+    app.run()
+
+# option = str(input("What do you want today? - "))
 
 pp.show()
-
-
