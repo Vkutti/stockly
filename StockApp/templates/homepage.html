@@ -43,10 +43,16 @@ article {
   padding: 20px;
   width: 70%;
   background-color: #f1f1f1;
-  height: 300px; /* only for demonstration, should be removed */
+  height: 300px;
 }
 
 section {
+  padding: 10px;
+  text-align: center;
+  color: Black;
+}
+
+h2 {
   padding: 10px;
   text-align: center;
   color: Black;
@@ -71,19 +77,40 @@ footer {
 </head>
 <body>
 <header>
-  <h2>WELCOME TO THE STOCK PREDICTOR TOOL</h2>
+  <h1>WELCOME TO THE STOCK PREDICTOR TOOL</h1>
 </header>
 
 <section>
 
     <label>What stock are you looking for today?</label>
-    <form method = "post">
-        <input type="text" id="stockname" name="stockname">
-        <input type="submit">
-    </form>
 
-    {{ stockexist }}
+    <form action="/stockinfo">
+        <input type="text" id="stockname" name="stockname">
+        <button type="submit">Submit</button>
+    </form>
 </section>
+
+<p></p>
+<h2> {{ stockPick }} </h2>
+
+<h2> {{ returnTF }}</h2>
+
+<section>
+
+    <label>When do you want to calculate for?</label>
+    <form action="/dateoption">
+        <input type="text" id="dateopt" name="dateopt">
+        <button type="submit">Submit</button>
+    </form>
+</section>
+
+<h2> {{ date }} </h2>
+
+<h2> {{ cv }} </h2>
+
+<h2> {{ lcv }} </h2>
+
+<h2> {{ hcv }} </h2>
 
 <footer>
   <p>Made by Venkat Kutti</p>
