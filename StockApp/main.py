@@ -1,5 +1,5 @@
 import yfinance as yf
-from matplotlib import pyplot as pp
+# from matplotlib import pyplot as pp
 import datetime as dt
 from calendar import monthrange as mr
 from flask import Flask, render_template, request
@@ -182,29 +182,30 @@ def dateoption():
 
     # Average Return - Percent Error <= Change Value <= Average Return + Percent Error
 
-    changeval = f'This is the change value: {changeValue}'
-    lowchangeval = f'This is the lowest change value: {float(changeValue - ((getAvgReturn(stk) * prdown) / 100))}'
-    highchangeval = f'This is the highest change value: {float(changeValue + ((getAvgReturn(stk) * prup) / 100))}'
+    changeval = f'This is the change value: ${round(changeValue, 2)}'
+    lowchangeval = f'This is the lowest change value: ${round(float(changeValue - ((getAvgReturn(stk) * prdown) / 100)), 2)}'
+    highchangeval = f'This is the highest change value: ${round(float(changeValue + ((getAvgReturn(stk) * prup) / 100)), 2)}'
+
 
     if option == 'Tomorrows Price':
         if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
             if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
-                print(f'The stock {stock} is expected to rise tomorrow by about: {changeValue}')
+                finalmsg = str(f'The stock {stock} is expected to rise tomorrow by about: ${changeValue}')
             else:
-                print(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
+                finalmsg = str(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
         else:
-            print(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
+            finalmsg = str(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
 
     if option == 'Future Price':
         if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
             if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
-                print(f'The stock {stock} is expected to rise in the next few days by about: {changeValue}')
+                finalmsg = str(f'The stock {stock} is expected to rise in the next few days by about: ${changeValue}')
             else:
-                print(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
+                finalmsg = str(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
         else:
-            print(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
+            finalmsg = str(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
 
-    return render_template("homepage.html", date = date, cv = changeval, lcv = lowchangeval, hcv = highchangeval)
+    return render_template("homepage.html", date = date, cv = changeval, lcv = lowchangeval, hcv = highchangeval, endval = finalmsg)
 
 
 # Returns the average percent change daily
@@ -224,4 +225,4 @@ if __name__ == '__main__':
 
 # option = str(input("What do you want today? - "))
 
-pp.show()
+# pp.show()
