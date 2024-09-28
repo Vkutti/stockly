@@ -99,8 +99,7 @@ def get_stock_name():
 
 @app.route("/dateoption")
 def dateoption():
-
-
+    global stock
     date = str(request.args.get('dateopt'))
 
     option = date.upper()
@@ -110,19 +109,18 @@ def dateoption():
 
     # print(int(list(mr(ct.year, ct.month))[1]) - 10)
 
-    if option == 'TOMORROWS PRICE':
+    if option == 'FUTURE PRICE':
         date = f'{ct.year}-{ct.month}-{(ct.day - 10)}'
 
         if ct.day < 10:
             date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (10 - ct.day)}'
 
-    if option == 'FUTURE PRICE':
+    if option == 'TOMORROWS PRICE':
         date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
 
     if option == 'ALL TIME':
         date = '1980-1-1'
 
-    global stock
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
@@ -182,30 +180,34 @@ def dateoption():
 
     # Average Return - Percent Error <= Change Value <= Average Return + Percent Error
 
+    lowbound = float(changeValue - ((getAvgReturn(stk) * prdown) / 100))
+    highbound = float(changeValue + ((getAvgReturn(stk) * prup) / 100))
+
     changeval = f'This is the change value: ${round(changeValue, 2)}'
     lowchangeval = f'This is the lowest change value: ${round(float(changeValue - ((getAvgReturn(stk) * prdown) / 100)), 2)}'
     highchangeval = f'This is the highest change value: ${round(float(changeValue + ((getAvgReturn(stk) * prup) / 100)), 2)}'
 
+    if lowbound <= changeValue <= highbound:
+        trend = 'rise'
+        pricing = round(float(changeValue), 2)
+    else:
+        trend = 'fall'
+        pricing = round(float(changeValue * - 1), 2)
 
-    if option == 'Tomorrows Price':
-        if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
-            if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
-                finalmsg = str(f'The stock {stock} is expected to rise tomorrow by about: ${changeValue}')
-            else:
-                finalmsg = str(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
-        else:
-            finalmsg = str(f'The stock {stock} is expected to fall tomorrow by about ${changeValue * - 1}')
+    finish = ''
 
-    if option == 'Future Price':
-        if changeValue >= float(changeValue - ((getAvgReturn(stk) * prdown) / 100)):
-            if changeValue <= float(changeValue + ((getAvgReturn(stk) * prup) / 100)):
-                finalmsg = str(f'The stock {stock} is expected to rise in the next few days by about: ${changeValue}')
-            else:
-                finalmsg = str(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
-        else:
-            finalmsg = str(f'The stock {stock} is expected to fall in the next few days by about ${changeValue * - 1}')
+    if option == 'TOMORROWS PRICE':
+        finish = f'The stock {stock} is expected to {trend} tomorrow by about ${pricing}'
 
-    return render_template("homepage.html", date = date, cv = changeval, lcv = lowchangeval, hcv = highchangeval, endval = finalmsg)
+
+    if option == 'FUTURE PRICE':
+        finish = f'The stock {stock} is expected to {trend} in the next few days by about ${pricing}'
+
+
+
+
+    return render_template("homepage.html", date=date, cv=changeval, lcv=lowchangeval, hcv=highchangeval,
+                           endval=finish)
 
 
 # Returns the average percent change daily
