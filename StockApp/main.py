@@ -190,6 +190,9 @@ def dateoption():
     if lowbound <= changeValue <= highbound:
         trend = 'rise'
         pricing = round(float(changeValue), 2)
+        if changeValue < 0:
+            trend = 'fall'
+            pricing = round(float(changeValue), 2)
     else:
         trend = 'fall'
         pricing = round(float(changeValue * - 1), 2)
