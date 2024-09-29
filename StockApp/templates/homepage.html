@@ -11,11 +11,12 @@
 
 body {
   font-family: Tahoma;
+  background-color: #121212;
 }
 
 /* Style the header */
 header {
-  background-color: #191E29;
+  background-color: #253c25;
   font-family: Tahoma;
   padding: 30px;
   text-align: center;
@@ -49,21 +50,45 @@ article {
 section {
   padding: 10px;
   text-align: center;
-  color: Black;
+  color: White;
+  font-family: Tahoma;
+
+}
+
+input {
+    font-family: Tahoma;
+    height: 30px;
+    background-color: #dedede;
+}
+
+button {
+    height: 30px;
+    background-color: #6b6b6b;
+    font-family: Tahoma;
+
+}
+
+label{
+    font-family: Tahoma;
+    font-size: 25px;
 }
 
 h2 {
   padding: 10px;
   text-align: center;
-  color: Black;
+  color: #ededed;
+  font-family: Tahoma;
 }
 
 /* Style the footer */
 footer {
-  background-color: #191E29;
+  background-color: #253c25;
   padding: 10px;
   text-align: center;
+  font-family: Tahoma;
   color: white;
+  font-size: 25px;
+
 }
 
 /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
@@ -77,7 +102,7 @@ footer {
 </head>
 <body>
 <header>
-  <h1>WELCOME TO THE STOCK PREDICTOR TOOL</h1>
+  <h1>WELCOME TO STOCKLY</h1>
 </header>
 
 <section>
@@ -104,13 +129,13 @@ footer {
     </form>
 </section>
 
-<h2> {{ date }} </h2>
-
 <h2> {{ cv }} </h2>
 
 <h2> {{ lcv }} </h2>
 
 <h2> {{ hcv }} </h2>
+
+<h2> {{ endval }} </h2>
 
 <footer>
   <p>Made by Venkat Kutti</p>
