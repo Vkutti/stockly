@@ -3,9 +3,9 @@ import yfinance as yf
 import datetime as dt
 from calendar import monthrange as mr
 from flask import Flask, render_template, request
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import precision_score
-import pandas as pnd
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import precision_score
+# import pandas as pnd
 
 ones = []
 zeros = []
@@ -113,10 +113,10 @@ def dateoption():
     # print(int(list(mr(ct.year, ct.month))[1]) - 10)
 
     if option == 'FUTURE PRICE':
-        date = f'{ct.year}-{ct.month}-{(ct.day - 10)}'
+        date = f'{ct.year}-{ct.month}-{(ct.day - 14)}'
 
-        if ct.day < 10:
-            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (10 - ct.day)}'
+        if ct.day < 14:
+            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (14 - ct.day)}'
 
     if option == 'TOMORROWS PRICE':
         date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
@@ -126,7 +126,7 @@ def dateoption():
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
-    stkml = stk.loc['2012-1-1':].copy()
+    stkml = stk.loc['2014-1-1':].copy()
     stk = stk.loc[date:].copy()
 
     del stk["Dividends"]
@@ -148,12 +148,11 @@ def dateoption():
     getAverageVol(vol)
 
     stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
+    stk["Ratio"] = stk["Close"] / stk["MA 15 Days"]
 
-    stk["MA 7 Days"] = stk['Close'].rolling(7).mean()
-
+    stk["MA 7 Days"] = stk['Close'].rolling(2).mean()
+    print(stk["MA 7 Days"])
     stk["Pct Change"] = (stk['Close'].pct_change()) * 100
-
-    stkml["MA 15 Days"] = stkml['Close'].rolling(15).mean()
 
     """
 
@@ -213,27 +212,26 @@ def dateoption():
     if option == 'FUTURE PRICE':
         finish = f'The stock {stock} is expected to {trend} in the next few days by about ${pricing}'
 
-    model = RandomForestClassifier(n_estimators=500, min_samples_split=100, random_state=1)
+    """
 
-    train = stkml.iloc[:-100]
-    test = stkml.iloc[-100:]
-
-    predictors = ["Open", "Close", "High", "Low", "Volume"]
-    model.fit(train[predictors], train["Target1"])
-
-
+    model = RandomForestClassifier(n_estimators=600, max_depth=20, min_samples_split=100, min_samples_leaf=30, random_state=1)
 
     def predict(train1, test1, predictors1, model1):
         model1.fit(train1[predictors1], train1["Target1"])
         predictions = model1.predict_proba(test1[predictors1])[:, 1]
-        predictions[predictions >= 0.6] = 1
-        predictions[predictions < 0.6] = 0
+        print(list(predictions))
+        n = 0
+        for i in range(len(list(predictions)) - 1):
+            n += list(predictions)[i]
+        print(n / len(list(predictions)))
+        predictions[predictions >= 0.52] = 1
+        predictions[predictions < 0.52] = 0
         predictions = pnd.Series(predictions, index=test1.index, name="Predictions")
         combined = pnd.concat([test1["Target1"], predictions], axis=1)
         print(combined)
         return combined
 
-    def backtest(data2, model2, predictors2, start=3000, step=250):
+    def backtest(data2, model2, predictors2, start=2500, step=125):
         all_predictions = []
 
         for i in range(start, data2.shape[0], step):
@@ -245,7 +243,7 @@ def dateoption():
         return pnd.concat(all_predictions)
 
 
-    horizons = [2, 5, 30, 60, 250, 1000]
+    horizons = [2, 5, 10, 20, 60, 250, 1000]
     new_predictors = []
 
     for horizon in horizons:
@@ -258,12 +256,15 @@ def dateoption():
 
         new_predictors += [ratio_column, trend_column]
 
-    print(new_predictors)
+
+
 
     preds = backtest(stkml, model, new_predictors)
+    stkml = stkml.dropna()
     ps = precision_score(preds["Target1"], preds["Predictions"])
     print(ps)
 
+    """
 
     return render_template("homepage.html", date=date, cv=changeval, lcv=lowchangeval, hcv=highchangeval,
                            endval=finish)
