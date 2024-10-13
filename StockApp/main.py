@@ -1,3 +1,4 @@
+import numpy
 import yfinance as yf
 # from matplotlib import pyplot as pp
 import datetime as dt
@@ -6,6 +7,10 @@ from flask import Flask, render_template, request
 # from sklearn.ensemble import RandomForestClassifier
 # from sklearn.metrics import precision_score
 # import pandas as pnd
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+import math
 
 ones = []
 zeros = []
@@ -38,7 +43,7 @@ def getAverageVol(n):
     x = 0
 
     for i in range(len(n) - 1):
-        x += int(n[i])
+        x += n[i]
 
     print(float(x / (len(n))))
 
@@ -113,20 +118,22 @@ def dateoption():
     # print(int(list(mr(ct.year, ct.month))[1]) - 10)
 
     if option == 'FUTURE PRICE':
-        date = f'{ct.year}-{ct.month}-{(ct.day - 14)}'
+        date = f'{ct.year}-{ct.month}-{(ct.day - 12)}'
 
         if ct.day < 14:
-            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (14 - ct.day)}'
+            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (12 - ct.day)}'
 
     if option == 'TOMORROWS PRICE':
         date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
+
 
     if option == 'ALL TIME':
         date = '1980-1-1'
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
-    stkml = stk.loc['2014-1-1':].copy()
+    stkml = stk.loc['2020-1-1':].copy()
+    print(stkml["Close"])
     stk = stk.loc[date:].copy()
 
     del stk["Dividends"]
@@ -214,7 +221,7 @@ def dateoption():
 
     """
 
-    model = RandomForestClassifier(n_estimators=600, max_depth=20, min_samples_split=100, min_samples_leaf=30, random_state=1)
+    model = RandomForestClassifier(n_estimators=600, max_depth=30, min_samples_split=50, min_samples_leaf=30, random_state=1)
 
     def predict(train1, test1, predictors1, model1):
         model1.fit(train1[predictors1], train1["Target1"])
@@ -224,8 +231,8 @@ def dateoption():
         for i in range(len(list(predictions)) - 1):
             n += list(predictions)[i]
         print(n / len(list(predictions)))
-        predictions[predictions >= 0.52] = 1
-        predictions[predictions < 0.52] = 0
+        predictions[predictions >= 0.4945] = 1
+        predictions[predictions < 0.4945] = 0
         predictions = pnd.Series(predictions, index=test1.index, name="Predictions")
         combined = pnd.concat([test1["Target1"], predictions], axis=1)
         print(combined)
@@ -263,6 +270,132 @@ def dateoption():
     stkml = stkml.dropna()
     ps = precision_score(preds["Target1"], preds["Predictions"])
     print(ps)
+
+    """
+    def predictprice(num):
+        stkc = stkml["Close"]
+        # print(stkc)
+        stkdata = numpy.array(stkc).reshape(-1, 1)
+        # print(stkdata)
+        train_len = math.ceil(len(stkdata) * 0.82)
+
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scaled_dataset = scaler.fit_transform(stkdata)
+
+        train_data = scaled_dataset[0:train_len, :]
+
+        x_train = []
+        y_train = []
+
+        for i in range(num, len(train_data)):
+            x_train.append(train_data[i-num:i, 0])
+            y_train.append(train_data[i, 0])
+
+            # if i <= (num+1):
+                # print(x_train)
+                # print(y_train)
+                # print()
+
+        x_train, y_train = numpy.array(x_train), numpy.array(y_train)
+
+        x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+
+        model = Sequential()
+        model.add(LSTM(128, return_sequences=True, input_shape = (x_train.shape[1], 1)))
+        model.add(LSTM(128, return_sequences=False))
+        model.add(Dense(32))
+        model.add(Dense(1))
+
+        model.compile(optimizer='adam', loss='mean_squared_error')
+
+        model.fit(x_train, y_train, batch_size=4, epochs=2)
+
+        test_data = scaled_dataset[train_len - num:, :]
+        x_test = []
+        y_test = stkdata[train_len:, :]
+
+        for i in range(num, len(test_data)):
+            x_test.append(test_data[i - num:i, 0])
+
+        x_test = numpy.array(x_test)
+        x_test = numpy.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+        predictions = model.predict(x_test)
+        predictions = scaler.inverse_transform(predictions)
+
+        rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
+        print(rmse)
+
+        train = stkdata[:train_len]
+        valid = stkdata[train_len:]
+        # stkml['Predictions'] = valid
+
+        print(list(predictions)[-1])
+
+    predictprice(30)
+    predictprice(45)
+    predictprice(60)
+
+
+    """
+    
+    stkc = stkml["Volume"]
+    stkdata = numpy.array(stkc).reshape(-1, 1)
+    print(stkdata)
+    train_len = math.ceil(len(stkdata) * 0.8)
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_dataset = scaler.fit_transform(stkdata)
+
+    train_data = scaled_dataset[0:train_len, :]
+
+    x_train = []
+    y_train = []
+
+    for i in range(60, len(train_data)):
+        x_train.append(train_data[i - 60:i, 0])
+        y_train.append(train_data[i, 0])
+
+        if i <= 62:
+            print(x_train)
+            print(y_train)
+            print()
+
+    x_train, y_train = numpy.array(x_train), numpy.array(y_train)
+
+    x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+
+    model = Sequential()
+    model.add(LSTM(100, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+    model.add(LSTM(100, return_sequences=False))
+    model.add(Dense(25))
+    model.add(Dense(1))
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    model.fit(x_train, y_train, batch_size=3, epochs=1)
+
+    test_data = scaled_dataset[train_len - 60:, :]
+    x_test = []
+    y_test = stkdata[train_len:, :]
+
+    for i in range(60, len(test_data)):
+        x_test.append(test_data[i - 60:i, 0])
+
+    x_test = numpy.array(x_test)
+    x_test = numpy.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+    predictions = model.predict(x_test)
+    predictions = scaler.inverse_transform(predictions)
+
+    rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
+    print(rmse)
+
+    train = stkdata[:train_len]
+    valid = stkdata[train_len:]
+    # valid['Predictions'] = predictions
+
+    print(predictions)
 
     """
 
