@@ -280,19 +280,19 @@ def dateoption():
 
         scaler = MinMaxScaler(feature_range=(0, 1))
 
+        train_data = stkdata[0:train_len, :]
         scaled_dataset = scaler.fit_transform(stkdata)
-
-        train_data = scaled_dataset[0:train_len, :]
+        scaled_test_dataset = scaler.fit_transform(train_data)
 
         x_train = []
         y_train = []
 
-        print((len(train_data) - num))
-        print(len(train_data))
+        print((len(scaled_test_dataset) - num))
+        print(len(scaled_test_dataset))
 
-        for i in range((len(train_data) - num), len(train_data)):
-            x_train.append(train_data[i - num:i, 0])
-            y_train.append(train_data[i, 0])
+        for i in range((len(scaled_test_dataset) - num - 1), len(scaled_test_dataset)):
+            x_train.append(scaled_test_dataset[i - num:i, 0])
+            y_train.append(scaled_test_dataset[i, 0])
 
             # if i <= num:
                 # print(x_train)
@@ -340,7 +340,14 @@ def dateoption():
         print(predictionfinal)
         print(predictionfinal[-1])
 
-    predictprice(60)
+        return str(list(predictionfinal[-1]))
+
+    p = []
+    for i in range(0, 3):
+        print(predictprice(45))
+        p.append(predictprice(45))
+
+    print(p)
 
     """
 
