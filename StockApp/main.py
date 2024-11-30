@@ -9,7 +9,8 @@ from flask import Flask, render_template, request
 # import pandas as pnd
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.layers import Dense, LSTM, Dropout, Bidirectional
+from tensorflow.keras.callbacks import EarlyStopping
 import math
 
 ones = []
@@ -126,13 +127,12 @@ def dateoption():
     if option == 'TOMORROWS PRICE':
         date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
 
-
     if option == 'ALL TIME':
         date = '1980-1-1'
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
-    stkml = stk.loc['2020-1-1':].copy()
+    stkml = stk.loc['2023-1-1':].copy()
     print(stkml["Close"])
     stk = stk.loc[date:].copy()
 
@@ -157,8 +157,8 @@ def dateoption():
     stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
     stk["Ratio"] = stk["Close"] / stk["MA 15 Days"]
 
-    stk["MA 7 Days"] = stk['Close'].rolling(2).mean()
-    print(stk["MA 7 Days"])
+    stkml["MA 7 Days"] = stkml['Close'].rolling(2).mean()
+    print(stkml["MA 7 Days"])
     stk["Pct Change"] = (stk['Close'].pct_change()) * 100
 
     """
@@ -274,12 +274,12 @@ def dateoption():
     """
     def predictprice(num):
         stkc = stkml["Close"]
-        # print(stkc)
         stkdata = numpy.array(stkc).reshape(-1, 1)
-        # print(stkdata)
-        train_len = math.ceil(len(stkdata) * 0.82)
+        print(stkdata)
+        train_len = math.ceil(len(stkdata) * 0.8)
 
         scaler = MinMaxScaler(feature_range=(0, 1))
+
         scaled_dataset = scaler.fit_transform(stkdata)
 
         train_data = scaled_dataset[0:train_len, :]
@@ -287,11 +287,14 @@ def dateoption():
         x_train = []
         y_train = []
 
-        for i in range(num, len(train_data)):
-            x_train.append(train_data[i-num:i, 0])
+        print((len(train_data) - num))
+        print(len(train_data))
+
+        for i in range((len(train_data) - num), len(train_data)):
+            x_train.append(train_data[i - num:i, 0])
             y_train.append(train_data[i, 0])
 
-            # if i <= (num+1):
+            # if i <= num:
                 # print(x_train)
                 # print(y_train)
                 # print()
@@ -301,14 +304,16 @@ def dateoption():
         x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
         model = Sequential()
-        model.add(LSTM(128, return_sequences=True, input_shape = (x_train.shape[1], 1)))
-        model.add(LSTM(128, return_sequences=False))
-        model.add(Dense(32))
+        model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1))))
+        model.add(Bidirectional(LSTM(64, return_sequences=False)))
+        model.add(Dense(32, activation='relu'))
         model.add(Dense(1))
+        model.add(Dropout(0.1))
 
         model.compile(optimizer='adam', loss='mean_squared_error')
+        early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 
-        model.fit(x_train, y_train, batch_size=4, epochs=2)
+        model.fit(x_train, y_train, batch_size=4, epochs=16, verbose=1, callbacks=[early_stopping])
 
         test_data = scaled_dataset[train_len - num:, :]
         x_test = []
@@ -328,17 +333,17 @@ def dateoption():
 
         train = stkdata[:train_len]
         valid = stkdata[train_len:]
-        # stkml['Predictions'] = valid
+        # valid['Predictions'] = predictions
 
-        print(list(predictions)[-1])
+        predictionfinal = predictions.tolist()
 
-    predictprice(30)
-    predictprice(45)
+        print(predictionfinal)
+        print(predictionfinal[-1])
+
     predictprice(60)
 
-
     """
-    
+
     stkc = stkml["Volume"]
     stkdata = numpy.array(stkc).reshape(-1, 1)
     print(stkdata)
