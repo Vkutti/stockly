@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
 import math
 
 ones = []
@@ -80,8 +81,8 @@ def start():
 
 # Function to get if a stock exists on Yahoo Finance
 def is_real_stock(new):
-    st = yf.Ticker(new)
-    hist = st.history()
+    stock = yf.Ticker(new)
+    hist = stock.history()
 
     if hist.empty:
         return False
@@ -93,7 +94,7 @@ def is_real_stock(new):
 def get_stock_name():
     global stock
     stock_name = request.args.get('stockname')
-    stock = str(stock_name)
+    stock = ((stock_name.upper()))
 
     is_real_stock(stock)
 
@@ -132,7 +133,7 @@ def dateoption():
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
-    stkml = stk.loc['2023-1-1':].copy()
+    stkml = stk.loc['2024-11-3':].copy()
     print(stkml["Close"])
     stk = stk.loc[date:].copy()
 
@@ -158,7 +159,6 @@ def dateoption():
     stk["Ratio"] = stk["Close"] / stk["MA 15 Days"]
 
     stkml["MA 7 Days"] = stkml['Close'].rolling(2).mean()
-    print(stkml["MA 7 Days"])
     stk["Pct Change"] = (stk['Close'].pct_change()) * 100
 
     """
@@ -275,8 +275,8 @@ def dateoption():
     def predictprice(num):
         stkc = stkml["Close"]
         stkdata = numpy.array(stkc).reshape(-1, 1)
-        print(stkdata)
-        train_len = math.ceil(len(stkdata) * 0.8)
+        # print(stkdata)
+        train_len = math.ceil(len(stkdata) * 0.98)
 
         scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -287,43 +287,43 @@ def dateoption():
         x_train = []
         y_train = []
 
-        print((len(scaled_test_dataset) - num))
-        print(len(scaled_test_dataset))
 
-        for i in range((len(scaled_test_dataset) - num - 1), len(scaled_test_dataset)):
+        for i in range((len(scaled_test_dataset) - num), len(scaled_test_dataset)):
             x_train.append(scaled_test_dataset[i - num:i, 0])
             y_train.append(scaled_test_dataset[i, 0])
 
-            # if i <= num:
-                # print(x_train)
-                # print(y_train)
-                # print()
+
 
         x_train, y_train = numpy.array(x_train), numpy.array(y_train)
 
         x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
         model = Sequential()
-        model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1))))
+        model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1), dropout = 0.4)))
         model.add(Bidirectional(LSTM(64, return_sequences=False)))
         model.add(Dense(32, activation='relu'))
+        model.add(Dense(32, activation='relu'))
         model.add(Dense(1))
-        model.add(Dropout(0.1))
+        # model.add(Dropout(0.1))
 
-        model.compile(optimizer='adam', loss='mean_squared_error')
-        early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+        model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
+        early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
-        model.fit(x_train, y_train, batch_size=4, epochs=16, verbose=1, callbacks=[early_stopping])
+        model.fit(x_train, y_train, batch_size=16, epochs=64, verbose=1, callbacks=[early_stopping])
 
         test_data = scaled_dataset[train_len - num:, :]
         x_test = []
         y_test = stkdata[train_len:, :]
+
+
 
         for i in range(num, len(test_data)):
             x_test.append(test_data[i - num:i, 0])
 
         x_test = numpy.array(x_test)
         x_test = numpy.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+
 
         predictions = model.predict(x_test)
         predictions = scaler.inverse_transform(predictions)
@@ -337,82 +337,16 @@ def dateoption():
 
         predictionfinal = predictions.tolist()
 
-        print(predictionfinal)
-        print(predictionfinal[-1])
 
-        return str(list(predictionfinal[-1]))
+        finalvalue = round(float((predictionfinal[-1])[0]), 2)
 
-    p = []
-    for i in range(0, 3):
-        print(predictprice(45))
-        p.append(predictprice(45))
+        return f'${finalvalue}'
 
-    print(p)
 
-    """
+    p = predictprice(12)
 
-    stkc = stkml["Volume"]
-    stkdata = numpy.array(stkc).reshape(-1, 1)
-    print(stkdata)
-    train_len = math.ceil(len(stkdata) * 0.8)
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_dataset = scaler.fit_transform(stkdata)
-
-    train_data = scaled_dataset[0:train_len, :]
-
-    x_train = []
-    y_train = []
-
-    for i in range(60, len(train_data)):
-        x_train.append(train_data[i - 60:i, 0])
-        y_train.append(train_data[i, 0])
-
-        if i <= 62:
-            print(x_train)
-            print(y_train)
-            print()
-
-    x_train, y_train = numpy.array(x_train), numpy.array(y_train)
-
-    x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-
-    model = Sequential()
-    model.add(LSTM(100, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-    model.add(LSTM(100, return_sequences=False))
-    model.add(Dense(25))
-    model.add(Dense(1))
-
-    model.compile(optimizer='adam', loss='mean_squared_error')
-
-    model.fit(x_train, y_train, batch_size=3, epochs=1)
-
-    test_data = scaled_dataset[train_len - 60:, :]
-    x_test = []
-    y_test = stkdata[train_len:, :]
-
-    for i in range(60, len(test_data)):
-        x_test.append(test_data[i - 60:i, 0])
-
-    x_test = numpy.array(x_test)
-    x_test = numpy.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
-
-    predictions = model.predict(x_test)
-    predictions = scaler.inverse_transform(predictions)
-
-    rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
-    print(rmse)
-
-    train = stkdata[:train_len]
-    valid = stkdata[train_len:]
-    # valid['Predictions'] = predictions
-
-    print(predictions)
-
-    """
-
-    return render_template("homepage.html", date=date, cv=changeval, lcv=lowchangeval, hcv=highchangeval,
-                           endval=finish)
+    return render_template("homepage.html", date=date, endval=p)
 
 
 # Returns the average percent change daily
