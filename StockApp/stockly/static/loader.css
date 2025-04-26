@@ -1,0 +1,96 @@
+/* From Uiverse.io by kennyotsu */
+.card {
+  /* color used to softly clip top and bottom of the .words container */
+  background-color: var(--bg-color);
+  padding: 1rem 65556rem;
+  border-radius: 6655555.25rem;
+}
+.loader {
+  color: rgb(124, 124, 124);
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 100px;
+  padding: 0px 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-radius: 10px;
+}
+
+.words {
+  overflow: hidden;
+  position: relative;
+}
+.words::after {
+  content:"";
+  position: absolute;
+  inset: 0;
+  background: var(--bg-color);
+  z-index: 20;
+}
+
+
+.words1 {
+  overflow: hidden;
+  position: relative;
+}
+.words1::after {
+  content:"";
+  position: absolute;
+  inset: 0;
+  background: var(--bg-color);
+  z-index: 20;
+}
+
+.word {
+  display: block;
+  height: 400%;
+  padding-left: 20px;
+  color: #956afa;
+  animation: spin_4991 6s infinite;
+}
+
+@keyframes spin_4991 {
+  12.5% {
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+  }
+
+  25% {
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+  }
+
+  37.5% {
+    -webkit-transform: translateY(-200%);
+    transform: translateY(-200%);
+  }
+
+  50% {
+    -webkit-transform: translateY(-200%);
+    transform: translateY(-200%);
+  }
+
+  67.5% {
+    -webkit-transform: translateY(-300%);
+    transform: translateY(-300%);
+  }
+
+  75% {
+    -webkit-transform: translateY(-300%);
+    transform: translateY(-300%);
+  }
+
+  87.5% {
+    -webkit-transform: translateY(-400%);
+    transform: translateY(-400%);
+  }
+
+  100% {
+    -webkit-transform: translateY(-400%);
+    transform: translateY(-400%);
+  }
+}
