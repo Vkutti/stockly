@@ -6,13 +6,15 @@ from calendar import monthrange as mr
 from flask import Flask, render_template, request
 # from sklearn.ensemble import RandomForestClassifier
 # from sklearn.metrics import precision_score
-# import pandas as pnd
+# import pandas as pndx
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 import math
+
+# from tensorflow.python.keras.utils.generic_utils import to_list
 
 ones = []
 zeros = []
@@ -79,6 +81,16 @@ def start():
     return render_template('homepage.html')
 
 
+@app.route("/aboutme")
+def about():
+    return render_template("aboutme.html")
+
+
+@app.route("/faqs")
+def faq():
+    return render_template("faqs.html")
+
+
 # Function to get if a stock exists on Yahoo Finance
 def is_real_stock(new):
     stock = yf.Ticker(new)
@@ -92,53 +104,27 @@ def is_real_stock(new):
 
 @app.route("/stockinfo")
 def get_stock_name():
-    global stock
+    # global stock
     stock_name = request.args.get('stockname')
-    stock = ((stock_name.upper()))
+    stock = (stock_name.upper())
 
-    is_real_stock(stock)
+    # is_real_stock(stock)
 
+    """
     if is_real_stock(stock):
         stock = stock.upper()
         returnmsg = str(f"{stock} is a real stock.")
     else:
         returnmsg = str(f"{stock} is not a real stock.")
-
-    return render_template("homepage.html", stockPick=stock, returnTF=returnmsg)
-
-
-@app.route("/dateoption")
-def dateoption():
-    global stock
-    date = str(request.args.get('dateopt'))
-
-    option = date.upper()
-
-    date = ''
-    ct = dt.datetime.now()
-
-    # print(int(list(mr(ct.year, ct.month))[1]) - 10)
-
-    if option == 'FUTURE PRICE':
-        date = f'{ct.year}-{ct.month}-{(ct.day - 12)}'
-
-        if ct.day < 14:
-            date = f'{ct.year}-{ct.month - 1}-{int(list(mr(ct.year, ct.month))[1]) - (12 - ct.day)}'
-
-    if option == 'TOMORROWS PRICE':
-        date = f'{int(ct.year - 1)}-{ct.month}-{ct.day}'
-
-    if option == 'ALL TIME':
-        date = '1980-1-1'
+    """
+    # global stock
 
     stk = yf.Ticker(stock)
     stk = stk.history(period="max")
     stkml = stk.loc['2024-11-3':].copy()
     print(stkml["Close"])
-    stk = stk.loc[date:].copy()
+    # stk = stk.loc[date:].copy()
 
-    del stk["Dividends"]
-    del stk["Stock Splits"]
     # stk["High"]
     # stk["Low"]
 
@@ -177,7 +163,7 @@ def dateoption():
 
     pp.suptitle("All Values")
 
-    """
+    
 
     h = 0
 
@@ -219,7 +205,7 @@ def dateoption():
     if option == 'FUTURE PRICE':
         finish = f'The stock {stock} is expected to {trend} in the next few days by about ${pricing}'
 
-    """
+    
 
     model = RandomForestClassifier(n_estimators=600, max_depth=30, min_samples_split=50, min_samples_leaf=30, random_state=1)
 
@@ -272,11 +258,15 @@ def dateoption():
     print(ps)
 
     """
+
     def predictprice(num):
         stkc = stkml["Close"]
-        stkdata = numpy.array(stkc).reshape(-1, 1)
-        # print(stkdata)
+        stkclist = stkc.tolist()
+
+        stkdata = numpy.array(stkclist).reshape(-1, 1)
+        print(stkdata)
         train_len = math.ceil(len(stkdata) * 0.98)
+        print(train_len)
 
         scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -287,19 +277,16 @@ def dateoption():
         x_train = []
         y_train = []
 
-
         for i in range((len(scaled_test_dataset) - num), len(scaled_test_dataset)):
             x_train.append(scaled_test_dataset[i - num:i, 0])
             y_train.append(scaled_test_dataset[i, 0])
-
-
 
         x_train, y_train = numpy.array(x_train), numpy.array(y_train)
 
         x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
         model = Sequential()
-        model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1), dropout = 0.4)))
+        model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1), dropout=0.4)))
         model.add(Bidirectional(LSTM(64, return_sequences=False)))
         model.add(Dense(32, activation='relu'))
         model.add(Dense(32, activation='relu'))
@@ -315,21 +302,17 @@ def dateoption():
         x_test = []
         y_test = stkdata[train_len:, :]
 
-
-
         for i in range(num, len(test_data)):
             x_test.append(test_data[i - num:i, 0])
 
         x_test = numpy.array(x_test)
         x_test = numpy.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
 
-
-
         predictions = model.predict(x_test)
         predictions = scaler.inverse_transform(predictions)
 
-        rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
-        print(rmse)
+        # rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
+        # print(rmse)
 
         train = stkdata[:train_len]
         valid = stkdata[train_len:]
@@ -337,16 +320,13 @@ def dateoption():
 
         predictionfinal = predictions.tolist()
 
-
         finalvalue = round(float((predictionfinal[-1])[0]), 2)
 
         return f'${finalvalue}'
 
-
     p = predictprice(12)
 
-
-    return render_template("homepage.html", date=date, endval=p)
+    return render_template("predict.html", stockPick=stock, endval=p)
 
 
 # Returns the average percent change daily
