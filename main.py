@@ -124,11 +124,15 @@ def get_stock_name():
     stock = (stock_name.upper())
     # is_real_stock(stock)
 
+    if stock == "":
+        return render_template("error.html", msg="No stock name entered.")
+
     if is_real_stock(stock):
         stock = stock.upper()
     else:
         returnmsg = str(f"{stock} is not a real stock.")
         return render_template("error.html", msg=returnmsg)
+
 
     # global stock
     session = requests.Session(impersonate="chrome")

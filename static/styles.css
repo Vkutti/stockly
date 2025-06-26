@@ -1,6 +1,6 @@
 .searchBox {
   display: flex;
-  width: 720px;
+  width: 48vw;
 
   align-items: center;
   justify-content: space-between;
@@ -29,7 +29,6 @@
   font-optical-sizing: auto;
   font-weight: 600;
   font-style: normal;
-  font-size: 24px;
 }
 /*hover effect*/
 button:hover {
@@ -54,18 +53,29 @@ button:active {
     background-color: #1A1A1A;
     border-radius: 500px;
     height: 100px;
-    width: 600px;
+    width: 42vw;
     margin: auto;
     margin-top: 20px;
     box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
 
 }
 
+.buttonHolder1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    width: 42vw;
+    margin: auto;
+
+}
+
+
 .normalButton1 {
   color: white;
   align-text: center;
   justify-content: center;
-  margin: 40px;
+  margin: 3vw;
   width: 120px;
   height: 40px;
   border-radius: 50px;
@@ -98,6 +108,7 @@ button:active {
   align-text: center;
 }
 
+
 .searchInput {
   border: none;
 
@@ -110,6 +121,7 @@ button:active {
   font-optical-sizing: auto;
   font-weight: 500;
   font-style: normal;
+    width: 30vw;
 }
 
 input::placeholder {
@@ -118,13 +130,26 @@ input::placeholder {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
+
 }
 
 .intro-text{
-    padding-top: 10vh;
+    padding-top: 2vh;
     text-align: center;
 
     font-size: 36px;
+    font-family: "League Spartan", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: white;
+}
+
+.normal-text{
+    padding-top: 2vh;
+    text-align: center;
+
+    font-size: 24px;
     font-family: "League Spartan", sans-serif;
     font-optical-sizing: auto;
     font-weight: 600;
@@ -151,7 +176,6 @@ input::placeholder {
 
 .returnText {
     text-align: center;
-    padding-top: 6vh;
     font-size: 36px;
     font-family: "League Spartan", sans-serif;
     font-optical-sizing: auto;
@@ -162,7 +186,6 @@ input::placeholder {
 
 .returnText1 {
     text-align: center;
-    padding-top: 6vh;
     font-size: 64px;
     font-family: "League Spartan", sans-serif;
     font-optical-sizing: auto;
@@ -180,6 +203,13 @@ input::placeholder {
 
     display: block;
     margin: 0 auto;
+}
+
+.center-desc{
+
+    display: block;
+    margin: 0 auto;
+    width: 48vw
 }
 
 
