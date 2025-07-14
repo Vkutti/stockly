@@ -67,9 +67,8 @@ def predictprice(num, stocklist, stockname):
 
     train_data = stkdata[0:train_len]
     scaled_train_data = scaler.fit_transform(train_data)
-    scaled_dataset = scaler.transform(stkdata)  # ✅ Proper reuse
+    scaled_dataset = scaler.transform(stkdata)  
 
-    # ✅ Lightweight data prep
     x_train, y_train = [], []
     for i in range(num, len(scaled_train_data)):
         x_train.append(scaled_train_data[i - num:i, 0])
