@@ -65,9 +65,11 @@ def predictprice(num, stocklist, stockname):
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
-    train_data = stkdata[0:train_len]
+    train_data = stkdata[:train_len]
+
     scaled_train_data = scaler.fit_transform(train_data)
-    scaled_dataset = scaler.transform(stkdata)  
+    scaled_dataset = scaler.transform(stkdata)
+
 
     x_train, y_train = [], []
     for i in range(num, len(scaled_train_data)):
@@ -90,7 +92,7 @@ def predictprice(num, stocklist, stockname):
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
-    model.fit(x_train, y_train, batch_size=8, epochs=16, verbose=1, callbacks=[early_stopping])
+    model.fit(x_train, y_train, batch_size=8, epochs=16, verbose=0, callbacks=[early_stopping])
 
     test_data = scaled_dataset[train_len - num:, :]
     x_test = []
@@ -116,8 +118,9 @@ def predictprice(num, stocklist, stockname):
 
     p = f'${finalvalue}'
 
-    del model, x_train, y_train, x_test, predictions, scaled_dataset, scaled_train_data
+    del model, x_train, y_train, x_test, predictions, scaled_dataset, scaled_train_data, stkdata
     tensorflow.keras.backend.clear_session()
+
     gc.collect()
 
     return render_template("predict.html", stockPick=stockname, endval=p)
@@ -144,7 +147,7 @@ def get_stock_name():
     session = requests.Session(impersonate="chrome")
 
     stk = yf.Ticker(stock, session=session)
-    stk = stk.history(period="1y")  # or "1y"
+    stk = stk.history(period="1mo")  # or "1y"
 
     stkml = stk.loc['2024-11-3':].copy()
     print(stkml["Close"])
