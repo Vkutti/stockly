@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, redirect
 # from sklearn.metrics import precision_score
 # import pandas as pndx
 from curl_cffi import requests
-
+import tensorflow
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout, Bidirectional
@@ -90,7 +90,7 @@ def predictprice(num, stocklist, stockname):
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
-    model.fit(x_train, y_train, batch_size=16, epochs=16, verbose=1, callbacks=[early_stopping])
+    model.fit(x_train, y_train, batch_size=16, epochs=64, verbose=1, callbacks=[early_stopping])
 
     test_data = scaled_dataset[train_len - num:, :]
     x_test = []
