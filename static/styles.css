@@ -10,7 +10,7 @@
   position: relative;
   height: 80px;
   margin: 0 auto;
-    box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
 }
 
 .searchButton {
@@ -30,21 +30,20 @@
   font-weight: 600;
   font-style: normal;
 }
+
 /*hover effect*/
 button:hover {
   color: white;
   background-color: #1A1A1A;
-
   box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
   transform: translateY(-3px);
-
 }
+
 /*button pressing effect*/
 button:active {
   box-shadow: none;
   transform: translateY(0);
 }
-
 
 .buttonHolder {
     display: flex;
@@ -69,7 +68,6 @@ button:active {
     width: 42vw;
     margin: auto;
 }
-
 
 .normalButton1 {
   color: white;
@@ -105,7 +103,6 @@ button:active {
   align-text: center;
 }
 
-
 .searchInput {
   border: none;
   background: none;
@@ -126,13 +123,11 @@ input::placeholder {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
-
 }
 
 .intro-text{
     padding-top: 2vh;
     text-align: center;
-
     font-size: 36px;
     font-family: "League Spartan", sans-serif;
     font-optical-sizing: auto;
@@ -144,7 +139,6 @@ input::placeholder {
 .normal-text{
     padding-top: 2vh;
     text-align: center;
-
     font-size: 24px;
     font-family: "League Spartan", sans-serif;
     font-optical-sizing: auto;
@@ -192,20 +186,180 @@ input::placeholder {
 
 .back{
     background-color: #101110;
-
 }
 
 .center-svg{
-
     display: block;
     margin: 0 auto;
 }
 
 .center-desc{
-
     display: block;
     margin: 0 auto;
     width: 48vw
 }
 
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+    .searchBox {
+        width: 90vw;
+        min-width: unset;
+        height: 70px;
+        margin: 0 auto;
+    }
 
+    .searchButton {
+        width: 120px;
+        height: 50px;
+        font-size: 18px;
+        right: 8px;
+    }
+
+    .searchInput {
+        font-size: 20px;
+        padding: 20px 18px;
+        width: calc(100% - 140px);
+    }
+
+    .buttonHolder {
+        width: 65vw;
+        min-width: unset;
+        height: 60px;
+        gap: 4vw;
+        flex-wrap: wrap;
+        padding: 5px;
+    }
+
+    .buttonHolder1 {
+        width: 90vw;
+        flex-wrap: wrap;
+        gap: 20px;
+        height: auto;
+        padding: 20px 0;
+    }
+
+    .normalButton1, .normalButton2 {
+        width: 100px;
+        height: 35px;
+        font-size: 14px;
+        min-width: 100px;
+    }
+
+    .intro-text {
+        font-size: 28px;
+        padding: 0 20px;
+        line-height: 1.2;
+    }
+
+    .normal-text {
+        font-size: 20px;
+        padding: 0 20px;
+    }
+
+    .footer-text {
+        font-size: 14px;
+        padding: 0 20px;
+    }
+
+    .returnText {
+        font-size: 28px;
+        padding: 0 20px;
+    }
+
+    .returnText1 {
+        font-size: 48px;
+        padding: 0 20px;
+    }
+
+    .center-desc {
+        width: 90vw;
+        padding: 0 20px;
+    }
+}
+
+/* Small Mobile Devices */
+@media screen and (max-width: 480px) {
+    .searchBox {
+        width: 95vw;
+        height: 60px;
+    }
+
+    .searchButton {
+        width: 100px;
+        height: 45px;
+        font-size: 16px;
+    }
+
+    .searchInput {
+        font-size: 18px;
+        padding: 15px 16px;
+        width: calc(100% - 120px);
+    }
+
+    .buttonHolder {
+        width: 85vw;
+        height: 55px;
+        gap: 3vw;
+        padding: 8px;
+    }
+
+    .buttonHolder1 {
+        width: 95vw;
+    }
+
+    .normalButton1, .normalButton2 {
+        width: 90px;
+        height: 32px;
+        font-size: 12px;
+        min-width: 90px;
+    }
+
+    .intro-text {
+        font-size: 24px;
+        padding: 0 15px;
+    }
+
+    .normal-text {
+        font-size: 18px;
+        padding: 0 15px;
+    }
+
+    .footer-text {
+        font-size: 12px;
+        padding: 0 15px;
+    }
+
+    .returnText {
+        font-size: 24px;
+        padding: 0 15px;
+    }
+
+    .returnText1 {
+        font-size: 40px;
+        padding: 0 15px;
+    }
+
+    .center-desc {
+        width: 95vw;
+        padding: 0 15px;
+    }
+
+    input::placeholder {
+        font-size: 16px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    button:hover {
+        color: white;
+        background-color: #3A3A3A;
+        box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
+        transform: none;
+    }
+
+    button:active {
+        background-color: #1A1A1A;
+        transform: scale(0.98);
+    }
+}
