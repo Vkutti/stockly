@@ -90,7 +90,7 @@ def predictprice(num, stocklist, stockname):
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
-    model.fit(x_train, y_train, batch_size=16, epochs=64, verbose=1, callbacks=[early_stopping])
+    model.fit(x_train, y_train, batch_size=16, epochs=16, verbose=1, callbacks=[early_stopping])
 
     test_data = scaled_dataset[train_len - num:, :]
     x_test = []
