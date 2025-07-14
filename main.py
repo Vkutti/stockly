@@ -18,6 +18,7 @@ from tensorflow.keras.layers import Dense, LSTM, Dropout, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 import math
+import gc
 
 # from tensorflow.python.keras.utils.generic_utils import to_list
 
@@ -80,8 +81,8 @@ def predictprice(num, stocklist, stockname):
     x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
     model = Sequential()
-    model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], 1), dropout=0.4)))
-    model.add(Bidirectional(LSTM(64, return_sequences=False)))
+    model.add(LSTM(32, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.3))
+
     model.add(Dense(32, activation='relu'))
     model.add(Dense(32, activation='relu'))
     model.add(Dense(1))
@@ -90,7 +91,7 @@ def predictprice(num, stocklist, stockname):
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
-    model.fit(x_train, y_train, batch_size=16, epochs=16, verbose=1, callbacks=[early_stopping])
+    model.fit(x_train, y_train, batch_size=8, epochs=16, verbose=1, callbacks=[early_stopping])
 
     test_data = scaled_dataset[train_len - num:, :]
     x_test = []
@@ -117,6 +118,10 @@ def predictprice(num, stocklist, stockname):
     finalvalue = round(float((predictionfinal[-1])[0]), 2)
 
     p = f'${finalvalue}'
+
+    del model, x_train, y_train, x_test, scaled_dataset, scaled_train_data
+    gc.collect()
+
     return render_template("predict.html", stockPick=stockname, endval=p)
 
 
@@ -141,7 +146,8 @@ def get_stock_name():
     session = requests.Session(impersonate="chrome")
 
     stk = yf.Ticker(stock, session=session)
-    stk = stk.history(period="max")
+    stk = stk.history(period="1y")  # or "1y"
+
     stkml = stk.loc['2024-11-3':].copy()
     print(stkml["Close"])
 
