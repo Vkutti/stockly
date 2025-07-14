@@ -65,16 +65,16 @@ def predictprice(num, stocklist, stockname):
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
-    train_data = stkdata[0:train_len, :]
-    scaled_dataset = scaler.fit_transform(stkdata)
-    scaled_test_dataset = scaler.fit_transform(train_data)
+    train_data = stkdata[0:train_len]
+    scaled_train_data = scaler.fit_transform(train_data)
+    scaled_dataset = scaler.transform(stkdata)  # ✅ Proper reuse
 
-    x_train = []
-    y_train = []
+    # ✅ Lightweight data prep
+    x_train, y_train = [], []
+    for i in range(num, len(scaled_train_data)):
+        x_train.append(scaled_train_data[i - num:i, 0])
+        y_train.append(scaled_train_data[i, 0])
 
-    for i in range((len(scaled_test_dataset) - num), len(scaled_test_dataset)):
-        x_train.append(scaled_test_dataset[i - num:i, 0])
-        y_train.append(scaled_test_dataset[i, 0])
 
     x_train, y_train = numpy.array(x_train), numpy.array(y_train)
 
@@ -84,7 +84,7 @@ def predictprice(num, stocklist, stockname):
     model.add(LSTM(32, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.3))
 
     model.add(Dense(32, activation='relu'))
-    model.add(Dense(32, activation='relu'))
+
     model.add(Dense(1))
     # model.add(Dropout(0.1))
 
@@ -95,7 +95,6 @@ def predictprice(num, stocklist, stockname):
 
     test_data = scaled_dataset[train_len - num:, :]
     x_test = []
-    y_test = stkdata[train_len:, :]
 
     for i in range(num, len(test_data)):
         x_test.append(test_data[i - num:i, 0])
@@ -109,8 +108,7 @@ def predictprice(num, stocklist, stockname):
     # rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
     # print(rmse)
 
-    train = stkdata[:train_len]
-    valid = stkdata[train_len:]
+
     # valid['Predictions'] = predictions
 
     predictionfinal = predictions.tolist()
@@ -119,7 +117,8 @@ def predictprice(num, stocklist, stockname):
 
     p = f'${finalvalue}'
 
-    del model, x_train, y_train, x_test, scaled_dataset, scaled_test_dataset
+    del model, x_train, y_train, x_test, predictions, scaled_dataset, scaled_train_data
+    tensorflow.keras.backend.clear_session()
     gc.collect()
 
     return render_template("predict.html", stockPick=stockname, endval=p)
