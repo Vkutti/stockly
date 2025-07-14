@@ -65,13 +65,14 @@ def predictprice(num, stocklist, stockname):
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
-    train_data = stkdata[:train_len]
+    train_data = stkdata[0:train_len]
 
     scaled_train_data = scaler.fit_transform(train_data)
     scaled_dataset = scaler.transform(stkdata)
 
 
-    x_train, y_train = [], []
+    x_train = []
+    y_train = []
     for i in range(num, len(scaled_train_data)):
         x_train.append(scaled_train_data[i - num:i, 0])
         y_train.append(scaled_train_data[i, 0])
@@ -147,9 +148,9 @@ def get_stock_name():
     session = requests.Session(impersonate="chrome")
 
     stk = yf.Ticker(stock, session=session)
-    stk = stk.history(period="1mo")  # or "1y"
+    stk = stk.history(period="3mo")  # or "1y"
 
-    stkml = stk.loc['2024-11-3':].copy()
+    stkml = stk.loc['2025-1-1':].copy()
     print(stkml["Close"])
 
     stk["Tomorrow"] = stk["Close"].shift(-1)
