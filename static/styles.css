@@ -2,7 +2,6 @@
   display: flex;
   width: 48vw;
   min-width: 24rem;
-
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -10,7 +9,7 @@
   border-radius: 50px;
   position: relative;
   height: 80px;
-  margin: auto;
+  margin: 0 auto;
     box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
 }
 
@@ -56,7 +55,7 @@ button:active {
     height: 100px;
     width: 38vw;
     min-width: 30rem;
-    margin: auto;
+    margin: 0 auto;
     margin-top: 20px;
     box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
     gap: 4vw;
@@ -69,7 +68,6 @@ button:active {
     height: 100px;
     width: 42vw;
     margin: auto;
-    gap: 40rem;
 }
 
 
@@ -77,8 +75,8 @@ button:active {
   color: white;
   align-text: center;
   justify-content: center;
-
-  width: 120px;
+  width:8vw;
+  min-width: 120px;
   height: 40px;
   border-radius: 50px;
   background: #3A3A3A;
@@ -89,12 +87,10 @@ button:active {
   font-optical-sizing: auto;
   font-weight: 600;
   font-style: normal;
-
 }
 
 .normalButton2 {
   color: white;
-
   width: 120px;
   height: 40px;
   border-radius: 50px;
@@ -112,7 +108,6 @@ button:active {
 
 .searchInput {
   border: none;
-
   background: none;
   outline: none;
   color: white;
@@ -122,7 +117,7 @@ button:active {
   font-optical-sizing: auto;
   font-weight: 500;
   font-style: normal;
-    width: 30vw;
+  width: 30vw;
 }
 
 input::placeholder {
