@@ -55,13 +55,27 @@ def is_real_stock(new):
 
 
 def predictprice(num, stocklist, stockname):
-    stkc = stocklist["Close"]
-    stkclist = stkc.tolist()
+    stocklist['SMA_5'] = stocklist['Close'].rolling(window=5).mean()
+    stocklist['SMA_10'] = stocklist['Close'].rolling(window=10).mean()
+    stocklist['SMA_20'] = stocklist['Close'].rolling(window=20).mean()
+
+
+    # Drop rows with NaN values
+    stocklist = stocklist.dropna()
+    print(len(stocklist))
+    # Check if we have enough data after dropping NaN
+    if len(stocklist) < num + 10:
+        return render_template("error.html", msg="Not enough data after calculating rolling averages.")
+
+    features = ["Open", "High", "Low", "Close" , "SMA_5", "SMA_10"]
+    stkc = stocklist[features]
+    close_index = features.index("Close")
+
+    # stkclist = stkc.tolist()
     # stkclist.append("0")
-    stkdata = numpy.array(stkclist).reshape(-1, 1)
-    print(stkdata)
+
+    stkdata = numpy.array(stkc).reshape(-1, 1)
     train_len = math.ceil(len(stkdata) * 0.98)
-    print(train_len)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -74,8 +88,11 @@ def predictprice(num, stocklist, stockname):
     x_train = []
     y_train = []
     for i in range(num, len(scaled_train_data)):
+        print(i)
         x_train.append(scaled_train_data[i - num:i, 0])
         y_train.append(scaled_train_data[i, 0])
+        # print(x_train)
+        # print(y_train)
 
 
     x_train, y_train = numpy.array(x_train), numpy.array(y_train)
@@ -83,12 +100,17 @@ def predictprice(num, stocklist, stockname):
     x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
     model = Sequential()
-    model.add(LSTM(32, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.3))
 
+    """
+    model.add((LSTM(64, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.4)))
     model.add(Dense(32, activation='relu'))
-
     model.add(Dense(1))
-    # model.add(Dropout(0.1))
+    """
+
+    model.add((LSTM(64, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.4)))
+    model.add(Dense(32, activation='relu'))
+    model.add(Dense(1))
+
 
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
@@ -148,26 +170,14 @@ def get_stock_name():
     session = requests.Session(impersonate="chrome")
 
     stk = yf.Ticker(stock, session=session)
-    stk = stk.history(period="3mo")  # or "1y"
+    stk = stk.history(period="2mo")  # or "1y"
 
     stkml = stk.loc['2025-1-1':].copy()
     print(stkml["Close"])
 
-    stk["Tomorrow"] = stk["Close"].shift(-1)
-    stk["Target"] = (stk["Tomorrow"] > stk["Close"]).astype(int)
 
-    stkml["Tomorrow1"] = stkml["Close"].shift(-1)
-    stkml["Target1"] = (stkml["Tomorrow1"] > stkml["Close"]).astype(int)
-
-
-    stk["MA 15 Days"] = stk['Close'].rolling(15).mean()
-    stk["Ratio"] = stk["Close"] / stk["MA 15 Days"]
-
-    stkml["MA 7 Days"] = stkml['Close'].rolling(2).mean()
-    stk["Pct Change"] = (stk['Close'].pct_change()) * 100
-
-    return predictprice(12, stkml, stock)
+    return predictprice(9, stkml, stock)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
