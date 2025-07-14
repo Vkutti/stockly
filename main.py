@@ -119,7 +119,7 @@ def predictprice(num, stocklist, stockname):
 
     p = f'${finalvalue}'
 
-    del model, x_train, y_train, x_test, scaled_dataset, scaled_train_data
+    del model, x_train, y_train, x_test, scaled_dataset, scaled_test_dataset
     gc.collect()
 
     return render_template("predict.html", stockPick=stockname, endval=p)
