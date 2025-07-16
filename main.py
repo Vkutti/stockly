@@ -64,7 +64,6 @@ def predictprice(num, stocklist, stockname):
 
     # Drop rows with NaN values
     stocklist = stocklist.dropna()
-    print(len(stocklist))
     # Check if we have enough data after dropping NaN
     if len(stocklist) < num + 9:
         return render_template("error.html", msg="Not enough data after calculating rolling averages.")
