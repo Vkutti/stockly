@@ -56,7 +56,9 @@ def is_real_stock(new):
 
 def predictprice(num, stocklist, stockname):
     stocklist['SMA_5'] = stocklist['Close'].rolling(window=5).mean()
+    stocklist['SMA_7'] = stocklist['Close'].rolling(window=7).mean()
     stocklist['SMA_10'] = stocklist['Close'].rolling(window=10).mean()
+    stocklist['SMA_15'] = stocklist['Close'].rolling(window=15).mean()
     stocklist['SMA_20'] = stocklist['Close'].rolling(window=20).mean()
 
 
@@ -64,10 +66,10 @@ def predictprice(num, stocklist, stockname):
     stocklist = stocklist.dropna()
     print(len(stocklist))
     # Check if we have enough data after dropping NaN
-    if len(stocklist) < num + 10:
+    if len(stocklist) < num + 9:
         return render_template("error.html", msg="Not enough data after calculating rolling averages.")
 
-    features = ["Open", "High", "Low", "Close" , "SMA_5", "SMA_10"]
+    features = ["Open", "High", "Close"]
     stkc = stocklist[features]
     close_index = features.index("Close")
 
@@ -75,7 +77,7 @@ def predictprice(num, stocklist, stockname):
     # stkclist.append("0")
 
     stkdata = numpy.array(stkc).reshape(-1, 1)
-    train_len = math.ceil(len(stkdata) * 0.98)
+    train_len = math.ceil(len(stkdata) * 0.95)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -170,13 +172,13 @@ def get_stock_name():
     session = requests.Session(impersonate="chrome")
 
     stk = yf.Ticker(stock, session=session)
-    stk = stk.history(period="2mo")  # or "1y"
+    stk = stk.history(period="30d")  # or "1y"
 
     stkml = stk.loc['2025-1-1':].copy()
     print(stkml["Close"])
 
 
-    return predictprice(9, stkml, stock)
+    return predictprice(2, stkml, stock)
 
 
 if __name__ == '__main__':

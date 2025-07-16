@@ -199,6 +199,29 @@ input::placeholder {
     width: 48vw
 }
 
+.card-holder {
+    margin: auto;
+    width: 98vw;
+    display: flex;
+    gap: 2rem;
+    padding-top: 20px;
+}
+
+
+.card {
+    width: 25rem;
+    height: 25rem;
+    background-color: #3A3A3A;
+    border-radius: 20px;
+    padding: 20px;
+    margin: auto;
+    color: white;
+    font-size: 24px;
+    font-family: "League Spartan", sans-serif;
+
+
+}
+
 /* Mobile Responsive Styles */
 @media screen and (max-width: 768px) {
     .searchBox {
