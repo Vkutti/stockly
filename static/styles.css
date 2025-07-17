@@ -87,6 +87,60 @@ button:active {
   font-style: normal;
 }
 
+.normalButtonL {
+  color: white;
+  align-text: center;
+  justify-content: center;
+  width:8vw;
+  min-width: 120px;
+  height: 40px;
+  border-radius: 50px;
+  background:linear-gradient(45deg, #0072b1, #0072b1);
+  border: 0;
+  font-size: 16px;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  font-family: "League Spartan", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.normalButtonG {
+  color: white;
+  align-text: center;
+  justify-content: center;
+  width:8vw;
+  min-width: 120px;
+  height: 40px;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #08872B, #08872B);
+  border: 0;
+  font-size: 16px;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  font-family: "League Spartan", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.normalButtonI {
+  color: white;
+  align-text: center;
+  justify-content: center;
+  width:8vw;
+  min-width: 120px;
+  height: 40px;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+  border: 0;
+  font-size: 16px;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  font-family: "League Spartan", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
 .normalButton2 {
   color: white;
   width: 120px;
