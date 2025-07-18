@@ -357,14 +357,14 @@ input::placeholder {
         width: 95vw;
         flex-direction: column;
         gap: 1rem;
-        padding: 20px;
+        padding-top: 20px;
     }
 
     .card {
         width: 85vw;
         height: auto;
         min-height: 20rem;
-        margin: 0;
+        margin: auto;
         padding: 20px;
     }
 }
@@ -443,14 +443,16 @@ input::placeholder {
     .card-holder {
         width: 98vw;
         gap: 0.8rem;
-        padding: 15px;
+        padding-top: 20px;
+        margin: auto;
     }
 
     .card {
         width: 90vw;
         height: auto;
         min-height: 18rem;
-        padding: 16px;
+        padding: 10px;
+        margin: auto;
         font-size: 20px;
     }
 
