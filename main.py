@@ -19,11 +19,12 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 import math
 import gc
-
+import mimetypes
 # from tensorflow.python.keras.utils.generic_utils import to_list
 
 
 app = Flask(__name__)
+mimetypes.add_type('image/svg+xml', '.svg')
 
 
 @app.route("/")
@@ -181,4 +182,4 @@ def get_stock_name():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
