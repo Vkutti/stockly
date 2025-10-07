@@ -20,6 +20,8 @@ from tensorflow.keras.optimizers import Adam
 import math
 import gc
 import mimetypes
+from sklearn.metrics import mean_absolute_error, r2_score
+
 # from tensorflow.python.keras.utils.generic_utils import to_list
 
 
@@ -77,7 +79,7 @@ def predictprice(num, stocklist, stockname):
     # stkclist.append("0")
 
     stkdata = numpy.array(stkc).reshape(-1, 1)
-    train_len = math.ceil(len(stkdata) * 0.95)
+    train_len = math.ceil(len(stkdata) * 0.9)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -131,17 +133,24 @@ def predictprice(num, stocklist, stockname):
     predictions = model.predict(x_test)
     predictions = scaler.inverse_transform(predictions)
 
-    # rmse = numpy.sqrt(numpy.mean(((list(predictions) - y_test) ** 2)))
-    # print(rmse)
-
-
-    # valid['Predictions'] = predictions
-
     predictionfinal = predictions.tolist()
 
     finalvalue = round(float((predictionfinal[-1])[0]), 2)
 
     p = f'${finalvalue}'
+
+    actual_prices = stkdata[train_len:, :]  # unscaled true values
+
+    # Ensure equal lengths
+    actual_prices = actual_prices[-len(predictions):]
+
+    mae = mean_absolute_error(actual_prices, predictions)
+    mape = numpy.mean(numpy.abs((actual_prices - predictions) / actual_prices)) * 100
+
+    print("\nModel Evaluation:")
+    print(f"Mean Absolute Error (MAE): {mae:.4f}")
+    print(f"Mean Absolute Percentage Error (MAPE): {mape:.2f}%")
+    print(f"Approx. Accuracy: {100 - mape:.2f}%")
 
     del model, x_train, y_train, x_test, predictions, scaled_dataset, scaled_train_data, stkdata
     tensorflow.keras.backend.clear_session()
@@ -176,6 +185,7 @@ def get_stock_name():
 
     stkml = stk.loc['2025-1-1':].copy()
     print(stkml["Close"])
+
 
 
     return predictprice(2, stkml, stock)
