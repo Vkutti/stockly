@@ -68,10 +68,10 @@ def predictprice(num, stocklist, stockname):
     # Drop rows with NaN values
     stocklist = stocklist.dropna()
     # Check if we have enough data after dropping NaN
-    if len(stocklist) < num + 9:
-        return render_template("error.html", msg="Not enough data after calculating rolling averages.")
+    # if len(stocklist) < num + 20:
+        # return render_template("error.html", msg="Not enough data after calculating rolling averages.")
 
-    features = ["Open", "High", "Close"]
+    features = ["Open", "High", "Low", "Close", "SMA_5", "SMA_7", "SMA_10"]
     stkc = stocklist[features]
     close_index = features.index("Close")
 
@@ -79,7 +79,7 @@ def predictprice(num, stocklist, stockname):
     # stkclist.append("0")
 
     stkdata = numpy.array(stkc).reshape(-1, 1)
-    train_len = math.ceil(len(stkdata) * 0.9)
+    train_len = int(len(stkdata) * 0.9)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -103,7 +103,7 @@ def predictprice(num, stocklist, stockname):
 
     x_train = numpy.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
-    model = Sequential()
+    # model = Sequential()
 
     """
     model.add((LSTM(64, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.4)))
@@ -111,13 +111,21 @@ def predictprice(num, stocklist, stockname):
     model.add(Dense(1))
     """
 
-    model.add((LSTM(64, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.4)))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(1))
+    # model.add((LSTM(64, return_sequences=False, input_shape=(x_train.shape[1], 1), dropout=0.4)))
+    # model.add(Dense(32, activation='relu'))
+    #  model.add(Dense(1))
 
+    model = Sequential([
+        LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])),
+        Dropout(0.2),
+        LSTM(32, return_sequences=False),
+        Dense(32, activation='relu'),
+        Dense(1)
+    ])
+
+    early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
-    early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
 
     model.fit(x_train, y_train, batch_size=8, epochs=16, verbose=0, callbacks=[early_stopping])
 
@@ -188,8 +196,8 @@ def get_stock_name():
 
 
 
-    return predictprice(2, stkml, stock)
+    return predictprice(10, stkml, stock)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
