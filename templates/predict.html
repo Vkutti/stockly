@@ -5,6 +5,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Circular spinner used inside the button */
+        .btn-spinner.spin {
+            display: none; /* shown only when .loading is present */
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.25);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            margin-left: 8px;
+            vertical-align: middle;
+            box-sizing: border-box;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .btn-spinner.paused { animation-play-state: paused; }
+
+        .searchButton.loading .btn-text { display: none; }
+        .searchButton.loading .btn-spinner.spin { display: inline-block; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Ensure the button can show the spinner and center contents */
+        .searchButton {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            overflow: visible !important;
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
@@ -48,13 +79,17 @@
 
 <section>
     <div class="center-svg">
+
         <p class="intro-text">Predict another price?</p>
     </div>
 
     <form action="/stockinfo">
         <div class="searchBox">
             <input autocomplete="off" class="searchInput" type="text" name="stockname" id="stockname" placeholder="Type in the stock ticker symbol">
-            <button class="searchButton" type="submit">Predict</button>
+            <button class="searchButton" type="submit">
+                <span class="btn-text">Predict</span>
+                <span class="btn-spinner spin" aria-hidden="true"></span>
+            </button>
         </div>
     </form>
 </section>
@@ -70,5 +105,42 @@
 </div>
 
 </body>
+<script>
+    // Show spinner on predict button when clicked/submitted (predict results page)
+    (function(){
+        const searchBox = document.querySelector('.searchBox');
+        if (!searchBox) return;
+        const form = searchBox.closest('form');
+        if (!form) return;
+        const btn = form.querySelector('.searchButton');
+        if (!btn) return;
+
+        const spinner = btn.querySelector('.btn-spinner');
+        btn.addEventListener('click', function (e) {
+            if (btn.classList.contains('loading')) return;
+            e.preventDefault();
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            if (spinner) {
+                btn.addEventListener('pointerdown', function () { spinner.classList.add('paused'); });
+                btn.addEventListener('pointerup', function () { spinner.classList.remove('paused'); });
+                btn.addEventListener('pointerleave', function () { spinner.classList.remove('paused'); });
+                btn.addEventListener('pointercancel', function () { spinner.classList.remove('paused'); });
+            }
+
+            requestAnimationFrame(function () {
+                setTimeout(function () { form.submit(); }, 80);
+            });
+        });
+
+        form.addEventListener('submit', function (e) {
+            if (!btn.classList.contains('loading')) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            }
+        });
+    })();
+</script>
 </html>
 

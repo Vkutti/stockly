@@ -21,6 +21,7 @@ import math
 import gc
 import mimetypes
 from sklearn.metrics import mean_absolute_error, r2_score
+from tensorflow.keras.models import load_model
 
 # from tensorflow.python.keras.utils.generic_utils import to_list
 
@@ -141,6 +142,9 @@ def predictprice(num, stocklist, stockname):
     predictions = model.predict(x_test)
     predictions = scaler.inverse_transform(predictions)
 
+    # model.save(f"models/{stockname}_model.h5")
+    # os.makedirs("models", exist_ok=True)
+
     predictionfinal = predictions.tolist()
 
     finalvalue = round(float((predictionfinal[-1])[0]), 2)
@@ -196,8 +200,8 @@ def get_stock_name():
 
 
 
-    return predictprice(10, stkml, stock)
+    return predictprice(20, stkml, stock)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
