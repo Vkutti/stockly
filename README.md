@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="Stockly Logo" width="150">
+</p>
+
 # Stockly
 
 Stockly is a machine learning–based web application that predicts future stock prices using historical market data. The app provides a simple interface where users can choose a stock and instantly receive a model-generated prediction.
