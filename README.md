@@ -21,4 +21,4 @@ Stockly is a machine learning–based web application that predicts future stock
 * Python, Flask
 * TensorFlow, Keras
 * NumPy, Pandas, Scikit-learn
-* Railway for deployment
+* Railway
