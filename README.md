@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="stocklylogo.svg" alt="Stockly Logo" width="250">
+  <img src="stocklylogo.svg" alt="Stockly Logo" width="550">
 </p>
 
 # Stockly
