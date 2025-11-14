@@ -10,20 +10,15 @@ Stockly is a machine learning–based web application that predicts future stock
 
 * LSTM-based stock price forecasting
 * Automated data preprocessing (scaling, sequence generation)
-* Flask backend with a clean and fast UI
-* Deployed on Railway
-* Easily extensible for new tickers or updated models
 
 ## How It Works
-
-1. Historical price data is collected for the selected stock.
-2. Data is scaled and converted into training sequences.
-3. A trained LSTM model predicts the next closing price.
-4. The prediction is displayed to the user through the web interface.
+* Historical price data is collected for the selected stock.
+* Data is scaled and converted into training sequences.
+* A trained LSTM model predicts the next closing price.
 
 ## Tools Used
 
 * Python, Flask
-* TensorFlow/Keras
+* TensorFlow, Keras
 * NumPy, Pandas, Scikit-learn
 * Railway for deployment
