@@ -1,30 +1,36 @@
-/* From Uiverse.io by zeynabashouri */
-
+/* Loading indicator — subtle brand tint, minimal motion */
 body {
-    background-color: #101110;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #101110;
 }
 
 .loader {
-  width: 55px;
-  height: 80px;
+  width: 52px;
+  height: 76px;
   background: linear-gradient(
-      #0000 calc(1 * 100% / 6),
-      #fff 0 calc(3 * 100% / 6),
-      #0000 0
+      transparent calc(1 * 100% / 6),
+      rgba(12, 206, 107, 0.85) 0 calc(3 * 100% / 6),
+      transparent 0
     ),
     linear-gradient(
-      #0000 calc(2 * 100% / 6),
-      #fff 0 calc(4 * 100% / 6),
-      #0000 0
+      transparent calc(2 * 100% / 6),
+      rgba(21, 148, 98, 0.65) 0 calc(4 * 100% / 6),
+      transparent 0
     ),
     linear-gradient(
-      #0000 calc(3 * 100% / 6),
-      #fff 0 calc(5 * 100% / 6),
-      #0000 0
+      transparent calc(3 * 100% / 6),
+      rgba(12, 206, 107, 0.45) 0 calc(5 * 100% / 6),
+      transparent 0
     );
-  background-size: 12px 500%;
+  background-size: 11px 500%;
   background-repeat: no-repeat;
   animation: matrix 2s infinite linear;
+  border-radius: 4px;
+  opacity: 0.9;
 }
 
 @keyframes matrix {
